@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
-import { adminAPI } from '../../services/api';
+import { adminAPI, eventsAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
@@ -120,11 +120,14 @@ const AdminDashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Attendance %
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {stats?.events.map((event) => (
-                    <tr key={event.event_id}>
+                    <tr key={event._id || event.event_id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{event.title}</div>
                         {event.main_event && (
@@ -142,6 +145,32 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         {event.attendance_percentage}%
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to={`/admin/events/edit/${event._id || event.event_id}`}
+                            className="text-indigo-600 hover:underline"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            onClick={async () => {
+                              if (!window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) return;
+                              try {
+                                await eventsAPI.delete(event._id || event.event_id);
+                                toast.success('Event deleted successfully');
+                                fetchDashboard();
+                              } catch (error) {
+                                toast.error('Failed to delete event');
+                                console.error(error);
+                              }
+                            }}
+                            className="text-red-600 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

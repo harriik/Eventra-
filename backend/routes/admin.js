@@ -37,6 +37,7 @@ router.get('/dashboard', async (req, res) => {
         const attendancePercentage = registrations > 0 ? ((present / registrations) * 100).toFixed(2) : 0;
 
         return {
+          _id: event._id,
           event_id: event.event_id,
           title: event.title,
           date: event.date,
