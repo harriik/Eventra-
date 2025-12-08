@@ -14,7 +14,22 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.trim() === '') {
 }
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins in development
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -54,8 +69,9 @@ mongoose.connect(mongoURI, {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 
